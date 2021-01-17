@@ -1,0 +1,402 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <!--    <meta name="viewport" content="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">-->
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <!--    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">-->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9">
+    <meta http-equiv="X-UA-Compatible" content="IE=7,9">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="./libs/style.add.css" type="text/css">
+
+    <script src="./libs/jquery.min.js"></script>
+    <script src="./libs/moment.js"></script>
+    <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+    <title>优惠券</title>
+</head>
+<body>
+<div id="container">
+    <div class="icon-divv">
+        <img id="useHead" alt="">
+    </div>
+    <p class="icon-p"><span>请使用优惠券</span></p>
+    <div id="carLicenseBox">
+        <div class="carLicenseTitle">
+            请输入车牌号
+        </div>
+        <div class="carLicenseMain">
+            <ul>
+                <li class="active">省</li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+        <button class="submitBtn" id="submitBtn">提交</button>
+        <div class="foot" style="display: none;"></div>
+    </div>
+    <div class="icon-divv">
+        <img id="useFoot" alt="">
+    </div>
+    <div id="keyboardBox">
+        <div class="provienceBox" id="provienceBox">
+            <div class="close">
+                <div id="closeBox">关闭键盘</div>
+            </div>
+            <ul>
+                <li>京</li>
+                <li>津</li>
+                <li>渝</li>
+                <li>沪</li>
+                <li>冀</li>
+                <li>晋</li>
+                <li>辽</li>
+                <li>吉</li>
+                <li>黑</li>
+                <li>苏</li>
+            </ul>
+            <ul>
+                <li>浙</li>
+                <li>皖</li>
+                <li>闽</li>
+                <li>赣</li>
+                <li>鲁</li>
+                <li>豫</li>
+                <li>鄂</li>
+                <li>湘</li>
+                <li>粤</li>
+                <li>琼</li>
+            </ul>
+            <ul>
+                <li>川</li>
+                <li>贵</li>
+                <li>云</li>
+                <li>陕</li>
+                <li>甘</li>
+                <li>青</li>
+                <li>蒙</li>
+                <li>桂</li>
+                <li>宁</li>
+                <li>新</li>
+            </ul>
+            <ul>
+                <li class="changeContentBtn other">ABC</li>
+                <li>藏</li>
+                <li>使</li>
+                <li>领</li>
+                <li>警</li>
+                <li>学</li>
+                <li>港</li>
+                <li>澳</li>
+                <li class="deleteBtn other">删除</li>
+            </ul>
+        </div>
+        <div class="textBox" id="textBox">
+            <div class="close">
+                <div id="closeBox2">关闭键盘</div>
+            </div>
+            <ul>
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+                <li>4</li>
+                <li>5</li>
+                <li>6</li>
+                <li>7</li>
+                <li>8</li>
+                <li>9</li>
+                <li>0</li>
+            </ul>
+            <ul>
+                <li>Q</li>
+                <li>W</li>
+                <li>E</li>
+                <li>R</li>
+                <li>T</li>
+                <li>Y</li>
+                <li>U</li>
+                <li>I</li>
+                <li>O</li>
+                <li>P</li>
+            </ul>
+            <ul>
+                <li>A</li>
+                <li>S</li>
+                <li>D</li>
+                <li>F</li>
+                <li>G</li>
+                <li>H</li>
+                <li>J</li>
+                <li>K</li>
+                <li>L</li>
+            </ul>
+            <ul>
+                <li class="changeContentBtn other">返回</li>
+                <li>Z</li>
+                <li>X</li>
+                <li>C</li>
+                <li>V</li>
+                <li>B</li>
+                <li>N</li>
+                <li>M</li>
+                <li class="deleteBtn other">删除</li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    $("#useHead").attr("src", "http://syq.jinshipark.com/images/yhq-first1.jpg");
+    $("#useFoot").attr("src", "http://syq.jinshipark.com/images/yhq-first2.jpg");
+    let msg = "";
+    let id = getQueryVariable('id');
+    let type = getQueryVariable('type');
+    let time = getQueryVariable('time');
+    let sign = getQueryVariable('sign');
+    let signLocal = '';
+
+    //验签
+    function checkSign() {
+        signLocal = md5(time + id + type).slice(0, 6).toUpperCase();
+        return signLocal === sign;
+    }
+
+    //验证优惠券是否超时
+    function checkTime() {
+        let paramTime = moment(time, 'YYYYMMDDHHmmss');
+        let nowTime = moment(new Date());
+        return paramTime.add(5, 'm') >= nowTime;
+
+    }
+
+    if (!checkSign()) {
+        msg = "优惠券签名失败";
+        window.location.href = './error.html?msg=' + encodeURIComponent(msg);
+    }
+    if (!checkTime()) {
+        msg = "本优惠券已超时";
+        window.location.href = './error.html?msg=' + encodeURIComponent(msg);
+    }
+    if (localStorage.getItem('employ-coupon')) {
+        var str = localStorage.getItem('employ-coupon');
+        $(".carLicenseMain").children('ul').children("li:eq(0)").text(str.substr(0, 1));
+        $(".carLicenseMain").children('ul').children("li:eq(1)").text(str.substr(1, 1));
+        $(".carLicenseMain").children('ul').children("li:eq(2)").text(str.substr(2, 1));
+        $(".carLicenseMain").children('ul').children("li:eq(3)").text(str.substr(3, 1));
+        $(".carLicenseMain").children('ul').children("li:eq(4)").text(str.substr(4, 1));
+        $(".carLicenseMain").children('ul').children("li:eq(5)").text(str.substr(5, 1));
+        $(".carLicenseMain").children('ul').children("li:eq(6)").text(str.substr(6, 1));
+        $(".carLicenseMain").children('ul').children("li:eq(7)").text(str.substr(7, 1))
+    }
+
+    function gethtmlfontsize() {
+        // 三个步骤:
+        // 1.获取html的宽,
+        let htmlwidth = document.documentElement.clientWidth || document.body.clientWidth;//有些浏览器documentElement获取不到,那就使用后面的body
+
+        // 2.htmlDom
+        let htmlDom = document.getElementsByTagName("html")[0];
+
+        //3.设置根元素样式
+        htmlDom.style.fontSize = htmlwidth / 23.4375 + 'px';
+    }
+
+    // 调用一次
+    gethtmlfontsize();
+    // 添加监听事件(resize是监听的意思)
+    window.addEventListener('resize', gethtmlfontsize);
+    $(document).ready(function () {
+        //键盘隐藏，点击触发显示
+        $("#keyboardBox").hide();
+        $(".carLicenseMain").on("click", function () {
+            $("#keyboardBox").show();
+            // $(".foot").show()
+            $("body,html").animate({scrollTop: 300}, 500);
+
+        });
+
+        $("#closeBox").on("click", function () {
+            $("#keyboardBox").hide();
+            $(".foot").hide()
+        });
+
+        $("#closeBox2").on("click", function () {
+            $("#keyboardBox").hide();
+            $(".foot").hide()
+        });
+        //键盘点击动画
+        $(".textBox ul li").each(function () {
+            $(this).click(function () {
+                $(this).addClass("activeKey"); //添加动画效果
+                $(this).siblings().removeClass("activeKey");//移除动画效果
+                var interval = setTimeout(function () { //定时器及时清除自身动画效果
+                    $(this).removeClass("activeKey");
+                    window.clearInterval(interval)
+                }.bind(this), 200);
+            })
+        });
+        var num = 7; //需要输入的车牌数
+        //切换键盘
+        $('.changeContentBtn').click(function () {
+            $('li').siblings().removeClass("activeKey");
+            if ($(this).html() === 'ABC') {
+                $('#textBox').show();
+                $('#provienceBox').hide();
+            } else {
+                $('#textBox').hide();
+                $('#provienceBox').show();
+            }
+        });
+        //新能源点击事件
+        $('.xinnengyuan').click(function () {
+            num = 7;
+            $(this).removeClass('xinnengyuan');
+        });
+
+        //获取当前车牌数字索引
+        function getIndex() {
+            if (localStorage.getItem('employ-coupon')) {
+                var index = localStorage.getItem('employ-coupon').length;
+                if (index > 7) {
+                    index = 7
+                }
+                $('.carLicenseMain ul li').removeClass('active');
+                $('.carLicenseMain ul ').find('li').eq(index).addClass('active');
+                $('.carLicenseMain ul li').each(function () {
+                    var reg = new RegExp('active');
+                    if (reg.test($(this).attr('class'))) {
+                        index = $(this).index();
+                    }
+                });
+                localStorage.removeItem('employ-coupon');
+                return index
+            } else {
+                var index = 0;
+                $('.carLicenseMain ul li').each(function () {
+                    var reg = new RegExp('active');
+                    if (reg.test($(this).attr('class'))) {
+                        index = $(this).index();
+                    }
+                });
+                return index;
+            }
+        }
+
+        //自定义键盘处理函数
+        function keyboard(num, self) {
+            var index = getIndex();
+            if (index <= num) {
+                if (index === num) {
+                    $('.carLicenseMain ul li.active').html($(self).html());
+                } else {
+                    $('.carLicenseMain ul li.active').html($(self).html()).removeClass('active').next().addClass('active');
+                }
+                $('#textBox').show();
+                $('#provienceBox').hide();
+            }
+        }
+
+        //省份键盘点击事件
+        $('#provienceBox ul li:not(.other)').click(function () {
+            $(this).addClass("activeKey"); //添加动画效果
+            $(this).siblings().removeClass("activeKey");//移除动画效果
+            var interval = setTimeout(function () { //定时器及时清除自身动画效果
+                $(this).removeClass("activeKey");
+                var self = this;
+                keyboard(num, self);
+                window.clearInterval(interval)
+            }.bind(this), 200);
+            //省份点击后键盘切换
+            //var self = this;
+            //keyboard(num,self);
+        });
+        //文本键盘点击事件
+        $('#textBox ul li:not(.other)').click(function () {
+            var self = this;
+            keyboard(num, self);
+        });
+        //回退按钮点击事件
+        $('.deleteBtn').click(function () {
+            var index = getIndex();
+            if (index === num) {
+                if ($('.carLicenseMain ul li.active').html() !== '') {
+                    $('.carLicenseMain ul li.active').html('');
+                } else {
+                    if (index === 7) {
+                        $('.carLicenseMain ul li:last-of-type').addClass('xinnengyuan');
+                        num = 7;
+                    }
+                    $('.carLicenseMain ul li.active').removeClass('active').prev().addClass('active').html('');
+                }
+            } else if (index < num && index > 1) {
+                $('.carLicenseMain ul li.active').removeClass('active').prev().addClass('active').html('');
+            } else if (index === 1) {
+                $('.carLicenseMain ul li.active').removeClass('active').prev().addClass('active').html('省');
+            }
+        });
+        //提交按钮点击事件
+        $('#submitBtn').click(function () {
+            var carNum = "";
+            var flag = true;
+            $(".carLicenseMain ul li").each(function (index) {
+                if (index !== 7) {
+                    if ($(this).html() === "" || $(this).html() === undefined) {
+                        flag = false;
+                    }
+                }
+                carNum += $(this).html()
+            });
+            if (!flag) {
+                alert("车牌录入不正确");
+                return;
+            }
+            localStorage.setItem('employ-coupon', carNum);
+            $.ajax({
+                url: "http://api.jinshipark.com/yhq-war/couponOrderManager/insertCouponOrderToD",
+                contentType: "charset=UTF-8",
+                dataType: "json",
+                type: "get",
+                data: {
+                    "plate": String(carNum),
+                    "id": Number(id),
+                    "type": Number(type)
+                },
+                success: function (data) {
+                    if (data.msg === '使用优惠券成功') {
+                        window.location.href = './success.html?carNum=' + encodeURIComponent(carNum) + '&type=' + type + '&id=' + id;
+                    } else {
+                        window.location.href = './error.html?carNum=' + encodeURIComponent(carNum) + '&type=' + type + '&id=' + id + '&msg=' + encodeURIComponent(data.msg);
+                    }
+                },
+                error: function (data) {
+                    msg = "扫码失败，请联系工作人员更换二维码";
+                    window.location.href = './error.html?carNum=' + encodeURIComponent(carNum) + '&type=' + type + '&id=' + id + '&msg=' + encodeURIComponent(msg);
+                },
+            });
+
+        })
+    });
+
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] === variable) {
+                return pair[1];
+            }
+        }
+        return false;
+    }
+</script>
+</html>

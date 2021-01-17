@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <!--    <meta name="viewport" content="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">-->
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <!--    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">-->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9">
+    <meta http-equiv="X-UA-Compatible" content="IE=7,9">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="./libs/style.add.css" type="text/css">
+    <script src="./libs/jquery.min.js"></script>
+    <script src="./libs/moment.js"></script>
+</head>
+<body>
+<div id="container">
+    <div class="icon-divv">
+        <img id="useHead" alt="">
+    </div>
+    <div id="error-content">
+        <div class="error-img">
+            <img src="error.png" alt="">
+        </div>
+        <div class="error_info" id="error_info">
+        </div>
+    </div>
+    <div class="icon-divv">
+        <img id="useFoot" alt="">
+    </div>
+</div>
+<script>
+    $("#useHead").attr("src", "http://syq.jinshipark.com/images/yhq-error1.jpg");
+    $("#useFoot").attr("src", "http://syq.jinshipark.com/images/yhq-error2.jpg");
+    // let starttime = "";// 开始时间
+    // let endtime = "";   // 结束时间
+    let dataTimeNUmber = new Date();  //现在的时间
+    let fmt = "YYYY-mm-dd HH:MM";
+    let msg = decodeURIComponent(getQueryVariable('msg'));
+    function add() {
+        let id = getQueryVariable('id');
+        let carNum = decodeURIComponent(getQueryVariable('carNum'));
+        let type = getQueryVariable('type');
+        let prarm = {
+            "id": Number(id),
+        };
+        $.ajax({
+            url: "http://api.jinshipark.com/yhq-war/shopCouponManager/selectParkCouponById",
+            contentType: "application/json",
+            dataType: "json",
+            type: "POST",
+            data: JSON.stringify(prarm),
+            success: function (data) {
+                if (data.data.status === 200) {
+                    if (type === 0) {
+                        $("#error_info").append(" " +
+                            "            <p>车牌号：<span>" + carNum + "</span></p>\n" +
+                            "            <p>优惠券类型：<span>全免券</span></p>\n" +
+                            "            <p>当前时间：<span>" + dateFormat(fmt, dataTimeNUmber) + "</span></p>\n" +
+                            "            <p>开始日期：<span>" + dateFormat(fmt, new Date(data.data.data.startdate)) + "</span></p>\n" +
+                            "            <p>结束日期：<span>" + dateFormat(fmt, new Date(data.data.data.enddate)) + "</span></p>\n" +
+                            "            <p>使用时段：<span>" + data.data.data.starttime + "-" + data.data.data.endtime + "</span></p>");
+                    } else if (type === 1) {
+                        $("#error_info").append(" " +
+                            "            <p>车牌号：<span>" + carNum + "</span></p>\n" +
+                            "            <p>优惠券类型：<span>减免时长</span></p>\n" +
+                            "            <p>当前时间：<span>" + dateFormat(fmt, dataTimeNUmber) + "</span></p>\n" +
+                            "            <p>开始日期：<span>" + dateFormat(fmt, new Date(data.data.data.startdate)) + "</span></p>\n" +
+                            "            <p>结束日期：<span>" + dateFormat(fmt, new Date(data.data.data.enddate)) + "</span></p>\n" +
+                            "            <p>使用时段：<span>" + data.data.data.starttime + "-" + data.data.data.endtime + "</span></p>");
+                    } else if (type === 2) {
+                        $("#error_info").append(" " +
+                            "            <p>车牌号：<span>" + carNum + "</span></p>\n" +
+                            "            <p>优惠券类型：<span>减免金额</span></p>\n" +
+                            "            <p>当前时间：<span>" + dateFormat(fmt, dataTimeNUmber) + "</span></p>\n" +
+                            "            <p>开始日期：<span>" + dateFormat(fmt, new Date(data.data.data.startdate)) + "</span></p>\n" +
+                            "            <p>结束日期：<span>" + dateFormat(fmt, new Date(data.data.data.enddate)) + "</span></p>\n" +
+                            "            <p>使用时段：<span>" + data.data.data.starttime + "-" + data.data.data.endtime + "</span></p>");
+                    } else {
+                        $("#error_info").append(" " +
+                            "            <p>车牌号：<span>" + carNum + "</span></p>\n" +
+                            "            <p>优惠券类型：<span>当天有效全免劵</span></p>\n" +
+                            "            <p>当前时间：<span>" + dateFormat(fmt, dataTimeNUmber) + "</span></p>\n" +
+                            "            <p>开始日期：<span>" + dateFormat(fmt, new Date(data.data.data.startdate)) + "</span></p>\n" +
+                            "            <p>结束日期：<span>" + dateFormat(fmt, new Date(data.data.data.enddate)) + "</span></p>\n" +
+                            "            <p>使用时段：<span>" + data.data.data.starttime + "-" + data.data.data.endtime + "</span></p>");
+                    }
+                }
+            },
+            error: function (data) {
+                alert(data)
+            },
+        });
+    }
+
+    if (msg === "扫码失败，请联系工作人员更换二维码"||msg === "优惠券签名失败") {
+        $(".error-img").append(" <p class=\"error-pp\"><span>" + msg + "</span></p>");
+    } else {
+        $(".error-img").append(" <p class=\"error-p\"><span>" + msg + "</span></p>");
+        add();
+    }
+
+
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] === variable) {
+                return pair[1];
+            }
+        }
+        return false;
+    }
+
+    function dateFormat(fmt, date) {
+        let ret;
+        const opt = {
+            "Y+": date.getFullYear().toString(),        // 年
+            "m+": (date.getMonth() + 1).toString(),     // 月
+            "d+": date.getDate().toString(),            // 日
+            "H+": date.getHours().toString(),           // 时
+            "M+": date.getMinutes().toString(),         // 分
+            "S+": date.getSeconds().toString()          // 秒
+            // 有其他格式化字符需求可以继续添加，必须转化成字符串
+        };
+        for (let k in opt) {
+            ret = new RegExp("(" + k + ")").exec(fmt);
+            if (ret) {
+                fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+            }
+
+        }
+        return fmt;
+    }
+</script>
+</body>
+</html>
